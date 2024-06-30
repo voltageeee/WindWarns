@@ -5,10 +5,6 @@ util.AddNetworkString('windwarns.removewarn')
 util.AddNetworkString('windwarns.getplayerdata')
 util.AddNetworkString('windwarns.purgewarns')
 
-hook.Add('Think', 'windwarns.updatetime', function()
-    TimeString = os.date( "%H:%M:%S - %d/%m/%Y: " , os.time() )
-end)
-
 if windwarns.logging then
     if file.Exists('windwarns_logs.txt', 'DATA') then
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' Logging file found, no need to create a new one.\n')
@@ -20,6 +16,7 @@ end
 
 function windwarns.log(logstring)
     if windwarns.logging then
+        local timestring = os.date( "%H:%M:%S - %d/%m/%Y: " , os.time() )
         file.Append('windwarns_logs.txt', logstring .. '\n')
     else 
         return
@@ -35,12 +32,12 @@ hook.Add('PlayerInitialSpawn', 'windwarns.plrinitialize', function(plr)
         plr:SetPData('windwarns.warns', UserWarns)
         plr:SetPData('windwarns.isuser', true)
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' Player ' .. plr:Nick() .. ' registered in the warn system.\n')
-        windwarns.log(TimeString .. ' Player ' .. plr:Nick() .. ' registered in the warn system.\n')
+        windwarns.log(' Player ' .. plr:Nick() .. ' registered in the warn system.\n')
     else 
         local WarnsTable = plr:GetPData('windwarns.warns')
         local UserWarns = util.JSONToTable(WarnsTable)
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' Player ' .. plr:Nick() .. ' initialized in the warn system, he has ' .. table.Count(UserWarns) .. ' warns.\n')
-        windwarns.log(TimeString .. ' Player ' .. plr:Nick() .. ' initialized in the warn system, he had ' .. table.Count(UserWarns) .. ' warns at the time.')
+        windwarns.log(' Player ' .. plr:Nick() .. ' initialized in the warn system, he had ' .. table.Count(UserWarns) .. ' warns at the time.')
     end
 end)
 
@@ -64,18 +61,18 @@ function windwarns.punishplayer(plr)
     if WarnsCount >= windwarns.fatalwarnscount and windwarns.punishment == 'demotion' then
         plr:SetUserGroup('user')
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' Player ' .. plr:Nick() .. ' reached the fatal amount of warns and was punished with a demotion.\n')
-        windwarns.log(TimeString .. ' Player ' .. plr:Nick() .. ' reached the fatal amount of warns and was punished with a demotion.')
+        windwarns.log(' Player ' .. plr:Nick() .. ' reached the fatal amount of warns and was punished with a demotion.')
     elseif WarnsCount >= windwarns.fatalwarnscount and windwarns.punishment == 'ban' then
         windwarns.banplayer(plr)
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' Player ' .. plr:Nick() .. ' reached the fatal amount of warns and was punished with a ban.\n')
-        windwarns.log(TimeString .. ' Player ' .. plr:Nick() .. ' reached the fatal amount of warns and was punished with a ban.')
+        windwarns.log(' Player ' .. plr:Nick() .. ' reached the fatal amount of warns and was punished with a ban.')
     end
 end
 
 net.Receive('windwarns.addwarn', function(len,plr)
     if not windwarns.accessgroups[plr:GetUserGroup()] then
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
-        windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.')
+        windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.')
         return
     end
 
@@ -94,7 +91,7 @@ net.Receive('windwarns.addwarn', function(len,plr)
 
     if not windwarns.superiourgroups[plr:GetUserGroup()] and trgt == plr then
         plr:SendLua("chat.AddText(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' You can not target yourself!')")
-        windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Tried to warn himself without having a proper access!')
+        windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Tried to warn himself without having a proper access!')
         return
     end
 
@@ -104,14 +101,14 @@ net.Receive('windwarns.addwarn', function(len,plr)
         windwarns.punishplayer(trgt)
     end
 
-    windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Warned ' .. trgt:Nick() .. '(' .. trgt:SteamID() .. ') With a reason: ' .. warn_reason)
+    windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Warned ' .. trgt:Nick() .. '(' .. trgt:SteamID() .. ') With a reason: ' .. warn_reason)
     trgt:SendLua("chat.AddText(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' You have been warned!')")
 end)
 
 net.Receive('windwarns.removewarn', function(len,plr)
     if not windwarns.accessgroups[plr:GetUserGroup()] then
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
-        windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
+        windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
         return
     end
 
@@ -126,20 +123,20 @@ net.Receive('windwarns.removewarn', function(len,plr)
 
     if not windwarns.superiourgroups[plr:GetUserGroup()] and trgt == plr then
         plr:SendLua("chat.AddText(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' You can not target yourself!')")
-        windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Tried to remove his warn without having a proper access!')
+        windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Tried to remove his warn without having a proper access!')
         return
     end
 
     trgt:SetPData('windwarns.warns', new_warnstable)
 
-    windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Removed ' .. trgt:Nick() .. '(' .. trgt:SteamID() .. ') warn.')
+    windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Removed ' .. trgt:Nick() .. '(' .. trgt:SteamID() .. ') warn.')
     trgt:SendLua("chat.AddText(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' Someone removed one of your warns!')")
 end)
 
 net.Receive('windwarns.purgewarns', function(len,plr)
     if not windwarns.accessgroups[plr:GetUserGroup()] then
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
-        windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
+        windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
         return
     end
 
@@ -148,20 +145,20 @@ net.Receive('windwarns.purgewarns', function(len,plr)
 
     if not windwarns.superiourgroups[plr:GetUserGroup()] and trgt == plr then
         plr:SendLua("chat.AddText(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' You can not target yourself!')")
-        windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Tried to purge his warns without having a proper access!')
+        windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Tried to purge his warns without having a proper access!')
         return
     end
 
     trgt:SetPData('windwarns.warns', newwarns)
 
-    windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Purged ' .. trgt:Nick() .. '(' .. trgt:SteamID() .. ') warns.')
+    windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Purged ' .. trgt:Nick() .. '(' .. trgt:SteamID() .. ') warns.')
     trgt:SendLua("chat.AddText(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' Someone purged your warns!')")
 end)
 
 net.Receive('windwarns.getplayerdata', function(len, plr)
     if not windwarns.accessgroups[plr:GetUserGroup()] then
         MsgC(windwarns.prefixcolor, windwarns.prefix, Color(255, 255, 255), ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to the warn system without having a proper access. He may have been trying to exploit nets.\n')
-        windwarns.log(TimeString .. ' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
+        windwarns.log(' User ' .. plr:Nick() .. '(' .. plr:SteamID() .. ') Sent a request to warn system without having a proper access. He may have been trying to exploit nets.\n')
         return
     end
 
