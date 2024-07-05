@@ -9,7 +9,7 @@ Thanks for using my addon! Hope you like it.
 ------------------------CONFIGURATION FILE---------------------------------
 ---------------------------------------------------------------------------
 
-windwarns.admsys = 'sa,' // Your admin system. May be 'sam', 'ulx', 'badmin', 'serverguard' or 'default' for fadmin. (Don't forge the '' symbols)
+windwarns.admsys = 'sam' // Your admin system. May be 'sam', 'ulx', 'badmin', 'serverguard' or 'default' for fadmin. (Don't forge the '' symbols)
 windwarns.fatalwarnscount = 3 // How much warns should player receive before getting punished?
 windwarns.punishment = 'demotion' // What kind of punishment does player receive when getting the fatal amount of warns? 'demotion' for... demotion, 'ban' will ban the player for the specified amount of time.
 windwarns.bantime = '1d' // How long will the player get banned for, if 'punishment' is set to 'ban'?
